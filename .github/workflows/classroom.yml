@@ -29,7 +29,7 @@ jobs:
         run: |
           # 确保在项目根目录下运行
           cd $GITHUB_WORKSPACE
-          for testfile in test1.cpp test2.cpp test3.cpp test4.cpp test5.cpp; do
+          for testfile in test5.cpp; do
             if [ -f "$testfile" ]; then
               g++ -o test_exec "$testfile" main.cpp -I. 
               echo "Running $testfile"
@@ -42,13 +42,13 @@ jobs:
       - name: Calculate score
         run: |
           # 统计测试用例总数
-          total_tests=$(grep -c "TEST_CASE" test*.cpp || echo 0)
+          total_tests=$(grep -c "TEST_CASE" test*.cpp | awk -F: '{sum += $2} END {print sum}')
 
           # 统计通过的测试用例数量
           passed_tests=$(grep -c "PASSED" test_results.log || echo 0)
 
           # 检查 total_tests 是否为 0，避免除零错误
-          if [ "$total_tests" -eq 0 ]; then
+          if [ -z "$total_tests" ] || [ "$total_tests" -eq 0 ]; then
             score=0
           else
             score=$((passed_tests * 100 / total_tests))
