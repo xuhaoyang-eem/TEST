@@ -43,16 +43,20 @@ jobs:
         run: |
           # 统计测试用例总数
           # 使用 cat 拼接所有文件再统计，避免 grep 单文件/多文件输出格式不一致问题
-          total_tests=$(cat test*.cpp 2>/dev/null | grep -c "TEST_CASE" || echo 0)
+          # 使用 || true 避免 grep 返回非零退出码导致脚本中断，同时避免 || echo 0 导致输出重复 (0\n0)
+          total_tests=$(cat test*.cpp 2>/dev/null | grep -c "TEST_CASE" || true)
           
+          # 确保日志文件存在
+          touch test_results.log
           # 统计通过的测试用例数量
-          passed_tests=$(grep -c "PASSED" test_results.log || echo 0)
+          passed_tests=$(grep -c "PASSED" test_results.log || true)
 
           echo "Total tests: $total_tests"
           echo "Passed tests: $passed_tests"
 
           score=0
-          if [ "$total_tests" -gt 0 ]; then
+          # 确保 total_tests 是数字且大于 0
+          if [[ "$total_tests" =~ ^[0-9]+$ ]] && [ "$total_tests" -gt 0 ]; then
             score=$((passed_tests * 100 / total_tests))
           fi
 
