@@ -1,0 +1,33 @@
+
+#include "main.hpp"
+#include "catch.hpp"
+
+TEST_CASE("Test for addition 1", "Sample 1")
+{
+    REQUIRE(calc(3, '+', -36) == -33);
+}
+
+TEST_CASE("Test for addition 2", "Sample 2")
+{
+    REQUIRE(calc(3.9, '+', -5) == -1.1);
+}
+
+TEST_CASE("Test for addition 3", "Sample 3")
+{
+    REQUIRE(calc(3.9, '+', 16.89) == 20.79);
+}
+
+TEST_CASE("Test for addition 4", "Sample 4")
+{
+     REQUIRE(calc(3, '+', -45.2) == -42.2);
+}
+
+TEST_CASE("Test for addition 5", "Sample 5")
+{
+     REQUIRE(calc(0, '+', 15.69) == 15.69);
+}
+
+TEST_CASE("Test for addition 6", "Sample 6")
+{
+    REQUIRE(calc(112.369, '+', 96.333) == 208.702);
+}
