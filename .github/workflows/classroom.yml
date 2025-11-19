@@ -31,7 +31,7 @@ jobs:
           cd $GITHUB_WORKSPACE
           for testfile in test1.cpp test2.cpp test3.cpp test4.cpp test5.cpp; do
             if [ -f "$testfile" ]; then
-              g++ -o test_exec "$testfile" main.cpp -I.
+              g++ -o test_exec "$testfile" main.cpp -I. 
               echo "Running $testfile"
               ./test_exec >> test_results.log || echo "Test failed: $testfile" >> test_results.log
             else
