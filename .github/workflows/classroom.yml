@@ -41,11 +41,24 @@ jobs:
 
       - name: Calculate score
         run: |
-          total_tests=$(grep -c "TEST_CASE" test*.cpp)
+          # 统计测试用例总数
+          total_tests=$(grep -c "TEST_CASE" test*.cpp || echo 0)
+
+          # 统计通过的测试用例数量
           passed_tests=$(grep -c "PASSED" test_results.log || echo 0)
-          score=$((passed_tests * 100 / total_tests))
+
+          # 检查 total_tests 是否为 0，避免除零错误
+          if [ "$total_tests" -eq 0 ]; then
+            score=0
+          else
+            score=$((passed_tests * 100 / total_tests))
+          fi
+
+          # 输出最终分数
           echo "Final Score: $score%"
-          echo "::set-output name=score::$score"
+
+          # 使用环境文件设置输出
+          echo "score=$score" >> $GITHUB_ENV
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
