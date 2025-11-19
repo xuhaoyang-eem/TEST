@@ -1,70 +1,59 @@
-name: Autograding Tests
-'on':
-- push
-- workflow_dispatch
-permissions:
-  checks: write
-  actions: read
-  contents: read
+name: C++ Test Runner with Scoring
+
+on:
+  push:
+    paths:
+      - '**.cpp'
+      - '**.hpp'
+      - '.github/workflows/classroom.yml'
+  pull_request:
+    paths:
+      - '**.cpp'
+      - '**.hpp'
+      - '.github/workflows/classroom.yml'
+
 jobs:
-  run-autograding-tests:
-    runs-on: self-hosted
-    if: github.actor != 'github-classroom[bot]'
+  build-and-test:
+    runs-on: ubuntu-latest
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - name: Test 1
-      id: test-1
-      uses: classroom-resources/autograding-command-grader@v1
-      with:
-        test-name: Test 1
-        setup-command: ''
-        command: make test1
-        timeout: 5
-        max-score: 3
-    - name: Test 2
-      id: test-2
-      uses: classroom-resources/autograding-command-grader@v1
-      with:
-        test-name: Test 2
-        setup-command: ''
-        command: make test2
-        timeout: 5
-        max-score: 3
-    - name: Test 3
-      id: test-3
-      uses: classroom-resources/autograding-command-grader@v1
-      with:
-        test-name: Test 3
-        setup-command: ''
-        command: make test3
-        timeout: 5
-        max-score: 3
-    - name: Test 4
-      id: test-4
-      uses: classroom-resources/autograding-command-grader@v1
-      with:
-        test-name: Test 4
-        setup-command: ''
-        command: make test4
-        timeout: 5
-        max-score: 3
-    - name: Test 5
-      id: test-5
-      uses: classroom-resources/autograding-command-grader@v1
-      with:
-        test-name: Test 5
-        setup-command: ''
-        command: make test5
-        timeout: 5
-        max-score: 3
-    - name: Autograding Reporter
-      uses: classroom-resources/autograding-grading-reporter@v1
-      env:
-        TEST-1_RESULTS: "${{steps.test-1.outputs.result}}"
-        TEST-2_RESULTS: "${{steps.test-2.outputs.result}}"
-        TEST-3_RESULTS: "${{steps.test-3.outputs.result}}"
-        TEST-4_RESULTS: "${{steps.test-4.outputs.result}}"
-        TEST-5_RESULTS: "${{steps.test-5.outputs.result}}"
-      with:
-        runners: test-1,test-2,test-3,test-4,test-5
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ cmake
+
+      - name: Set up Catch2
+        run: |
+          git clone https://github.com/catchorg/Catch2.git
+          cd Catch2
+          cmake -Bbuild -H. -DBUILD_TESTING=OFF
+          sudo cmake --build build/ --target install
+
+      - name: Compile and run tests
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          make
+          for testfile in ../test*.cpp; do
+            g++ -o test_exec "$testfile" ../main.cpp -lCatch2
+            echo "Running $testfile"
+            ./test_exec >> ../test_results.log || echo "Test failed: $testfile" >> ../test_results.log
+          done
+
+      - name: Calculate score
+        run: |
+          total_tests=$(grep -c "TEST_CASE" ../test*.cpp)
+          passed_tests=$(grep -c "PASSED" ../test_results.log || echo 0)
+          score=$((passed_tests * 100 / total_tests))
+          echo "Final Score: $score%"
+          echo "::set-output name=score::$score"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: test_results.log
