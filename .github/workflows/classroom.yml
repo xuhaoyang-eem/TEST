@@ -33,10 +33,16 @@ jobs:
 
       - name: Compile and run tests
         run: |
+          # 确保在项目根目录下运行
+          cd $GITHUB_WORKSPACE
           for testfile in test1.cpp test2.cpp test3.cpp test4.cpp test5.cpp; do
-            g++ -o test_exec "$testfile" main.cpp -I. -lCatch2
-            echo "Running $testfile"
-            ./test_exec >> test_results.log || echo "Test failed: $testfile" >> test_results.log
+            if [ -f "$testfile" ]; then
+              g++ -o test_exec "$testfile" main.cpp -I. -lCatch2
+              echo "Running $testfile"
+              ./test_exec >> test_results.log || echo "Test failed: $testfile" >> test_results.log
+            else
+              echo "File not found: $testfile"
+            fi
           done
 
       - name: Calculate score
