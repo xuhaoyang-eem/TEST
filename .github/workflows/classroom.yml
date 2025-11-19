@@ -31,25 +31,18 @@ jobs:
             wget https://github.com/catchorg/Catch2/releases/download/v2.13.10/catch.hpp
           fi
 
-      - name: Build project
-        run: |
-          mkdir build
-          cd build
-          cmake ..
-          make
-
       - name: Compile and run tests
         run: |
-          for testfile in ../test*.cpp; do
-            g++ -o test_exec "$testfile" ../main.cpp -I../ -lCatch2
+          for testfile in test1.cpp test2.cpp test3.cpp test4.cpp test5.cpp; do
+            g++ -o test_exec "$testfile" main.cpp -I. -lCatch2
             echo "Running $testfile"
-            ./test_exec >> ../test_results.log || echo "Test failed: $testfile" >> ../test_results.log
+            ./test_exec >> test_results.log || echo "Test failed: $testfile" >> test_results.log
           done
 
       - name: Calculate score
         run: |
-          total_tests=$(grep -c "TEST_CASE" ../test*.cpp)
-          passed_tests=$(grep -c "PASSED" ../test_results.log || echo 0)
+          total_tests=$(grep -c "TEST_CASE" test*.cpp)
+          passed_tests=$(grep -c "PASSED" test_results.log || echo 0)
           score=$((passed_tests * 100 / total_tests))
           echo "Final Score: $score%"
           echo "::set-output name=score::$score"
