@@ -35,7 +35,7 @@ jobs:
       - name: Compile and run tests
         run: |
           for testfile in ../test*.cpp; do
-            g++ -o test_exec "$testfile" ../main.cpp -lCatch2
+            g++ -o test_exec "$testfile" ../main.cpp -I../ -lCatch2
             echo "Running $testfile"
             ./test_exec >> ../test_results.log || echo "Test failed: $testfile" >> ../test_results.log
           done

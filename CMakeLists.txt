@@ -7,5 +7,8 @@ project(TEST_PROJECT)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# 添加包含路径
+include_directories(${CMAKE_SOURCE_DIR})
+
 # 添加源文件
 add_executable(main main.cpp)
