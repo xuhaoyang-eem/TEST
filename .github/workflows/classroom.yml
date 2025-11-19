@@ -23,13 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++ cmake
-
-      - name: Ensure Catch2 header exists
-        run: |
-          if [ ! -f "catch.hpp" ]; then
-            wget https://github.com/catchorg/Catch2/releases/download/v2.13.10/catch.hpp
-          fi
+          sudo apt-get install -y g++
 
       - name: Compile and run tests
         run: |
@@ -37,7 +31,7 @@ jobs:
           cd $GITHUB_WORKSPACE
           for testfile in test1.cpp test2.cpp test3.cpp test4.cpp test5.cpp; do
             if [ -f "$testfile" ]; then
-              g++ -o test_exec "$testfile" main.cpp -I. -lCatch2
+              g++ -o test_exec "$testfile" main.cpp -I.
               echo "Running $testfile"
               ./test_exec >> test_results.log || echo "Test failed: $testfile" >> test_results.log
             else
